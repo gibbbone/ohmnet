@@ -1,15 +1,21 @@
 import numpy as np
 import random
-
 import networkx as nx
 
 
-def read_net(fname, weighted, directed, log):
+def read_net(fname, weighted, directed, log, nodetype='int'):
+    type_of_nodes = {
+        'int':int, 'float':float, 
+        'string':str, 'str':str}[nodetype]
+
     if weighted:
-        G = nx.read_edgelist(inodetype=int, data=(('weight', float),),
-                             create_using=nx.DiGraph())
+        G = nx.read_edgelist(
+            fname, 
+            nodetype=type_of_nodes, 
+            data=(('weight', float),),
+            create_using=nx.DiGraph())
     else:
-        G = nx.read_edgelist(fname, nodetype=int, create_using=nx.DiGraph())
+        G = nx.read_edgelist(fname, nodetype=type_of_nodes, create_using=nx.DiGraph())
         for edge in G.edges():
             G[edge[0]][edge[1]]['weight'] = 1
 
@@ -23,9 +29,9 @@ def read_net(fname, weighted, directed, log):
     return giant
 
 
-def read_nets(net_list, weighted, directed, log):
+def read_nets(net_list, weighted, directed, log, nodetype='int'):
     nets = [(fname.replace('/', '_').strip(),
-             read_net(fname.strip(), weighted, directed, log))
+             read_net(fname.strip(), weighted, directed, log, nodetype=nodetype))
             for fname in open(net_list)]
     return dict(nets)
 

@@ -2,12 +2,9 @@ import sys
 import logging
 import os
 from os.path import join as pjoin
-
 import numpy as np
 import networkx as nx
-
 import utility
-
 from .gensimmod.model.word2vec import Word2Vec
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -18,7 +15,7 @@ __version__ = '0.1'
 class OhmNet():
     def __init__(self, net_input, weighted, directed,
         hierarchy_input, p, q, num_walks, walk_length,
-        dimension, window_size, n_workers, n_iter, out_dir, seed=0):
+        dimension, window_size, n_workers, n_iter, out_dir, nodetype='int', seed=0):
         self.net_input = net_input
         self.weighted = weighted
         self.directed = directed
@@ -32,6 +29,7 @@ class OhmNet():
         self.n_workers = n_workers
         self.n_iter = n_iter
         self.out_dir = out_dir
+        self.nodetype = nodetype
         self.rng = np.random.RandomState(seed)
 
         self.log = logging.getLogger('OHMNET')
@@ -40,7 +38,7 @@ class OhmNet():
             os.makedirs(self.out_dir)
 
         self.nets = utility.read_nets(
-            self.net_input, self.weighted, self.directed, self.log)
+            self.net_input, self.weighted, self.directed, self.log, self.nodetype)
         self.hierarchy = utility.read_hierarchy(self.hierarchy_input, self.log)
 
     def simulate_walks(self):
@@ -55,9 +53,10 @@ class OhmNet():
     def relabel_nodes(self):
         new_nets = {}
         for net_name, net in self.nets.items():
-            def mapping(x):
-                return '%s__%d' % (net_name, x)
-            new_nets[net_name] = nx.relabel_nodes(net, mapping, copy=False)
+            new_nets[net_name] = nx.relabel_nodes(
+                net, 
+                lambda x: "{}__{}".format(net_name,x), 
+                copy=False)
         return new_nets
 
     def update_internal_vectors(

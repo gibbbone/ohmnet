@@ -40,7 +40,8 @@ try:
     from word2vec_inner import FAST_VERSION, MAX_WORDS_IN_BATCH
 
     logger.debug('Fast version of {0} is being used'.format(__name__))
-except ImportError:
+except ImportError as IE:
+    print("Import Error: {}".format(IE))
     # failed... fall back to plain numpy (20-80x slower training than the above)
     logger.warning('Slow version of {0} is being used'.format(__name__))
     FAST_VERSION = -1
