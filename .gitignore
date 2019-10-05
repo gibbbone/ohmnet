@@ -90,3 +90,12 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# specific folders
+tmp/
+data/edgelists/first/ 
+data/edgelists/second/ 
+
+# specific files
+data/first*
+data/second*
