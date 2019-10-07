@@ -5,8 +5,7 @@ import networkx as nx
 
 def read_net(fname, weighted, directed, log, nodetype='int'):
     type_of_nodes = {
-        'int':int, 'float':float, 
-        'string':str, 'str':str}[nodetype]
+        'int':int, 'float':float, 'string':str, 'str':str}[nodetype]
 
     if weighted:
         G = nx.read_edgelist(
@@ -15,18 +14,25 @@ def read_net(fname, weighted, directed, log, nodetype='int'):
             data=(('weight', float),),
             create_using=nx.DiGraph())
     else:
-        G = nx.read_edgelist(fname, nodetype=type_of_nodes, create_using=nx.DiGraph())
+        G = nx.read_edgelist(
+            fname, 
+            nodetype=type_of_nodes, 
+            create_using=nx.DiGraph())
         for edge in G.edges():
             G[edge[0]][edge[1]]['weight'] = 1
-
-    if not directed:
+    
+    if directed:
+        ncc = nx.number_weakly_connected_components(G)
+        giant_c = max((G.subgraph(c).copy() for c in nx.weakly_connected_components(G)), key=len)
+    else:
         G = G.to_undirected()
+        ncc = nx.number_connected_components(G)
+        giant_c = max((G.subgraph(c).copy() for c in nx.connected_components(G)), key=len)
 
-    log.info('N: %d E: %d' % (G.number_of_nodes(), G.number_of_edges()))
-    log.info('CC: %d' % nx.number_connected_components(G))
-    giant = max(nx.connected_component_subgraphs(G), key=len)
-    log.info('N: %d E: %d' % (giant.number_of_nodes(), giant.number_of_edges()))
-    return giant
+    log.info('N: %d E: %d' % (G.number_of_nodes(), G.number_of_edges()))        
+    log.info('CC: %d' % ncc)
+    log.info('N: %d E: %d' % (giant_c.number_of_nodes(), giant_c.number_of_edges()))
+    return giant_c
 
 
 def read_nets(net_list, weighted, directed, log, nodetype='int'):

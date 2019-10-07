@@ -5,9 +5,10 @@
 # Licensed under the GNU LGPL v2.1 - http://www.gnu.org/licenses/lgpl.html
 
 """
-Run with:
+This setup has been lifted and adapted from word2vec in the gensim package. 
 
-sudo python ./setup.py install
+Run with:
+python setup.py build_ext --inplace
 """
 
 import os
